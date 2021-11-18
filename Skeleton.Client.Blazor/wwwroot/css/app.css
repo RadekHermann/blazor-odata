@@ -1,0 +1,9 @@
+﻿.rz-sidebar {
+    bottom: 0 !important;
+    border-right: 0 !important;
+}
+
+
+.rz-grid-table tr:hover {
+    cursor: pointer;
+}

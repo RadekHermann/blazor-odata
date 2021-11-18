@@ -1,0 +1,67 @@
+﻿@page "/persons"
+
+@using System.Text;
+@using System.Net.Http
+@inject HttpClient Http
+@inject ContextMenuService ContextMenuService
+
+@using Skeleton.Client.Blazor.Models
+
+<RadzenDataGrid IsLoading="@isLoading" PagerPosition="PagerPosition.TopAndBottom" AllowMultiColumnSorting="true" Count="@count" Data="@persons" LoadData="@LoadData" LogicalFilterOperator="LogicalFilterOperator.Or" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="4" TItem="Person" ColumnWidth="200px" RowClick="Person_RowClick" CellContextMenu="@ShowContextMenuWithContent">
+	<Columns>
+		<RadzenDataGridColumn TItem="Person" Property="Id" Filterable="false" Title="ID" Frozen="true" Width="50px" TextAlign="TextAlign.Center" />
+		<RadzenDataGridColumn TItem="Person" Property="Name.FirstName" Title="First Name" FilterProperty="Name.NormFirstName" />
+		<RadzenDataGridColumn TItem="Person" Property="Name.LastName" Title="Last Name" Width="150px" FilterProperty="Name.NormLastName" />
+		<RadzenDataGridColumn TItem="Person" Property="DateOfBirth" Title="Date of birth" Width="150px" FormatString="{0:dd.MM.yyyy}" />
+		<RadzenDataGridColumn TItem="Person" Property="Age" Title="Age" />
+	</Columns>
+</RadzenDataGrid>
+
+@e
+
+
+@code {
+	IEnumerable<Person> persons;
+	int count;
+	object e;
+
+	bool isLoading { get; set; }
+
+	async Task LoadData(LoadDataArgs args)
+	{
+		isLoading = true;
+
+		await FetchPersons(args.Filter, args.Top, args.Skip, args.OrderBy, expand: "name");
+		// Update the Data property
+
+		isLoading = false;
+	}
+
+	async Task FetchPersons(string filter = default, int? top = default(int?), int? skip = default(int?), string orderby = default, string expand = default(string), string select = default(string))
+	{
+		var uri = new Uri(Http.BaseAddress, "/odata/person");
+		uri = uri.GetODataUri(filter: filter, top: top, skip: skip, orderby: orderby, expand: expand, select: select, count: true);
+
+		var response = await Http.GetFromJsonAsync<ODataServiceResult<Person>>(uri);
+		persons = response.Value.AsODataEnumerable();
+		count = response.Count;
+	}
+
+	void Person_RowClick(DataGridRowMouseEventArgs<Person> e)
+	{
+		this.e = e.Data.Name.FirstName;
+	}
+
+
+	void ShowContextMenuWithContent(DataGridCellMouseEventArgs<Person> args) => ContextMenuService.Open(args, ds =>
+	@<RadzenMenu>
+		<RadzenMenuItem Text="@args.Data.Name.FirstName" Value="1" Icon="save"></RadzenMenuItem>
+		<RadzenMenuItem Text="Item2" Value="2"></RadzenMenuItem>
+		<RadzenMenuItem Text="More items" Value="3">
+			<RadzenMenuItem Text="More sub items" Value="4">
+				<RadzenMenuItem Text="Item1" Value="5"></RadzenMenuItem>
+				<RadzenMenuItem Text="Item2" Value="6"></RadzenMenuItem>
+			</RadzenMenuItem>
+		</RadzenMenuItem>
+	</RadzenMenu>);
+}
