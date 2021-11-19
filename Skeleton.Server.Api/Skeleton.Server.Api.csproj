@@ -7,12 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Skeleton.Client.Blazor\Skeleton.Client.Blazor.csproj" />
     <ProjectReference Include="..\Skeleton.Server.Infrastructure\Skeleton.Server.Infrastructure.csproj" />
     <ProjectReference Include="..\Skeleton.Shared.Domain\Skeleton.Shared.Domain.csproj" />
   </ItemGroup>

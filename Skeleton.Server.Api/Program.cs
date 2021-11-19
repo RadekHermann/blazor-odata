@@ -21,8 +21,10 @@ builder.Services.AddControllers()
         .TimeZone = TimeZoneInfo.Utc
     );
 
+/*
 ConfigurationManager configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
+*/
 
 builder.Services.AddDbContext<AppDbContext>(cfg =>
 {
@@ -42,7 +44,7 @@ builder.Services.AddIdentity<Uzivatel, Role>(cfg =>
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
-    opt.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+    opt.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
     opt.Cookie.HttpOnly = true;
 
     opt.ExpireTimeSpan = TimeSpan.FromMinutes(60);
@@ -61,15 +63,6 @@ builder.Services.ConfigureApplicationCookie(opt =>
     };
 });
 
-builder.Services.AddCors(stp =>
-{
-    stp.AddPolicy("cors", cfg =>
-    {
-        cfg.WithOrigins("http://localhost:7059").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-    });
-});
-
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -85,14 +78,19 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseWebAssemblyDebugging();
 }
 
-app.UseCors("cors");
+app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
 app.MapControllers();
-
+app.MapFallbackToFile("index.html");
 
 await app.RunAsync();

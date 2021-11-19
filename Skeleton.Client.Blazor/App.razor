@@ -1,12 +1,34 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿@inject NavigationManager navMan
+
+<CascadingAuthenticationState>
+	<Router AppAssembly="@typeof(Program).Assembly">
+		<Found Context="routeData">
+			<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+				<NotAuthorized>
+					@{
+						// navMan.NavigateTo();
+					}
+					<h1>Sorry</h1>
+					<p>You're not authorized to reach this page.</p>
+					<p>You may need to log in as a different user.</p>
+
+					<NavLink href="@LoginUrl">Přihlásit</NavLink>
+				</NotAuthorized>
+				<Authorizing>
+					<h1>Authorization in progress</h1>
+					<p>Only visible while authorization is in progress.</p>
+				</Authorizing>
+			</AuthorizeRouteView>
+		</Found>
+		<NotFound>
+			<h1>Not Found</h1>
+			<p>Requested resource was not found.</p>
+
+			<NavLink href="/">Přihlásit</NavLink>
+		</NotFound>
+	</Router>
+</CascadingAuthenticationState>
+
+@code {
+	string LoginUrl => "/login?redirectTo=" + navMan.ToBaseRelativePath(navMan.Uri);
+}

@@ -1,0 +1,25 @@
+@page "/login"
+
+@inject HttpClient httpclient
+@inject NavigationManager navigationManager
+@inject AuthStateProvider authStateProvider
+
+<RadzenButton Click="@(async () => Login_OnClick())" Text="Přihlásit" />
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "redirectTo")]
+    public string RedirectTo { get; set; } = "/";
+
+    async Task Login_OnClick()
+    {
+        try
+        {
+            await httpclient.PostAsJsonAsync("api/auth/login", new { userName = "radek.hermann", password = "Radek123" });
+            navigationManager.NavigateTo(this.RedirectTo);
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+}
